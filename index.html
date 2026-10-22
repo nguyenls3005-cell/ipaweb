@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Thư viện ứng dụng iOS IPA — khám phá, xem thông tin và tải ứng dụng.">
+<title>IPA Studio — Thư viện ứng dụng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f7f7f8;
+  --surface-2: #f0f0f2;
+  --ink: #171719;
+  --muted: #85858d;
+  --line: #e9e9ed;
+  --accent: #222226;
+  --green: #258653;
+  --radius: 24px;
+  --shadow: 0 12px 35px rgba(0,0,0,.045);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+body, input, button, select { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+button, a, select { -webkit-tap-highlight-color: transparent; }
+button, input, select { font-size: inherit; }
+button { color: inherit; }
+.container { width: min(1100px, calc(100% - 44px)); margin-inline: auto; }
+.muted { color: var(--muted); }
+.small { font-size: 11px; }
+.eyebrow { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1.7px; text-transform: uppercase; }
+
+/* HEADER */
+.header {
+  position: sticky; top: 0; z-index: 50;
+  border-bottom: 1px solid rgba(0,0,0,.055);
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.nav { min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 800; letter-spacing: -.7px; }
+.brand-symbol { width: 36px; height: 36px; display: grid; place-items: center; color: #fff; background: #19191c; border-radius: 13px; font-size: 17px; }
+.brand-dot { color: #999; }
+.nav-links { display: flex; align-items: center; gap: 27px; color: #707078; font-size: 11px; }
+.nav-links a:hover { color: #111; }
+.nav-button { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; color: #fff !important; background: var(--ink); border-radius: 100px; transition: transform .2s, background .2s; }
+.nav-button:hover { background: #39393e; transform: translateY(-1px); }
+
+/* HERO */
+.hero { position: relative; padding: 85px 0 35px; overflow: hidden; }
+.hero::before { content: ""; position: absolute; width: 360px; height: 360px; right: -150px; top: 20px; z-index: -1; border-radius: 50%; background: radial-gradient(circle, #ededf0 0%, #f8f8f9 42%, transparent 72%); pointer-events: none; }
+.status-pill { display: inline-flex; align-items: center; gap: 9px; padding: 9px 13px; border: 1px solid var(--line); border-radius: 100px; background: #fff; color: #66666d; font-size: 10px; font-weight: 600; }
+.status-dot { width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: #39a96b; box-shadow: 0 0 0 4px rgba(57,169,107,.1); }
+.hero h1 { margin: 27px 0 20px; max-width: 800px; font-size: clamp(49px, 8.7vw, 94px); font-weight: 700; letter-spacing: -.09em; line-height: 1.01; }
+.hero h1 span { color: #a0a0a7; }
+.hero-description { max-width: 460px; margin: 0; color: #777780; font-size: 13px; line-height: 2; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 27px; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 43px; padding: 12px 17px; border: 1px solid var(--line); border-radius: 14px; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; transition: transform .22s, background .22s, box-shadow .22s; }
+.button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px #00000009; }
+.button-dark { color: #fff; background: #19191c; border-color: #19191c; }
+.button-dark:hover { background: #39393d; }
+.button-light:hover { background: #f7f7f8; }
+.hero-bottom { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 65px; padding: 17px 0; border-top: 1px solid var(--line); color: #919198; font-size: 9px; letter-spacing: .6px; }
+
+/* STATISTICS */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 10px 0 65px; }
+.stat-card { min-width: 0; padding: 21px; border: 1px solid var(--line); border-radius: 22px; background: #fff; transition: transform .25s, box-shadow .25s; }
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.stat-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 10px; }
+.stat-icon { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 11px; background: #f1f1f3; color: #44444b; font-size: 15px; }
+.stat-value { margin-top: 16px; font-size: 32px; font-weight: 700; letter-spacing: -1.8px; }
+.stat-note { margin-top: 5px; color: #92929a; font-size: 10px; }
+
+/* SECTION HEADINGS */
+.section { padding: 42px 0 68px; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 25px; }
+.section-heading h2 { margin: 10px 0 0; font-size: clamp(30px, 4.5vw, 43px); font-weight: 700; letter-spacing: -.075em; line-height: 1.1; }
+.section-description { max-width: 350px; margin: 0; color: #818189; font-size: 11px; line-height: 1.9; }
+
+/* FEATURED */
+.featured { display: grid; grid-template-columns: 1.1fr .9fr; gap: 25px; align-items: center; min-height: 245px; padding: 30px; overflow: hidden; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(120deg, #fafafa, #f2f2f4); }
+.featured-copy { position: relative; z-index: 1; }
+.featured-label { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 100px; background: #fff; border: 1px solid #e8e8eb; color: #626269; font-size: 9px; font-weight: 600; }
+.featured h3 { margin: 17px 0 9px; font-size: clamp(25px, 4vw, 38px); letter-spacing: -1.7px; }
+.featured p { max-width: 400px; margin: 0; color: #777780; font-size: 11px; line-height: 1.9; }
+.featured-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 15px; }
+.featured-meta span { padding: 7px 10px; border-radius: 100px; background: #fff; color: #5e5e66; font-size: 9px; }
+.featured-visual { display: flex; align-items: center; justify-content: center; min-height: 170px; position: relative; }
+.featured-glow { position: absolute; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, #d7d7dc 0%, #e6e6e9 45%, transparent 72%); }
+.featured-app-icon { position: relative; width: 116px; height: 116px; display: grid; place-items: center; border: 1px solid #ffffffa8; border-radius: 33px; background: linear-gradient(145deg, #333337, #09090b); color: #fff; font-size: 47px; box-shadow: 0 20px 45px #00000020; transform: rotate(-7deg); animation: float 5s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(-7deg); } 50% { transform: translateY(-8px) rotate(-4deg); } }
+
+/* LIBRARY */
+.library-section { background: #fafafb; }
+.library-panel { padding: 25px; border: 1px solid #ececf0; border-radius: 28px; background: #fff; }
+.library-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 17px; }
+.search-wrap { position: relative; flex: 1; min-width: 0; }
+.search-icon { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: #85858d; font-size: 17px; pointer-events: none; }
+.search-input, .filter-select { height: 45px; border: 1px solid #e9e9ed; border-radius: 15px; outline: none; background: #fff; color: var(--ink); font-size: 11px; transition: border-color .2s, box-shadow .2s; }
+.search-input { width: 100%; padding: 0 15px 0 40px; }
+.search-input:focus, .filter-select:focus { border-color: #bdbdc5; box-shadow: 0 0 0 3px #00000004; }
+.search-input::placeholder { color: #a0a0a8; }
+.filter-select { width: 145px; padding: 0 12px; cursor: pointer; }
+.library-subbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 13px; color: #8c8c94; font-size: 9px; }
+.filter-chips { display: flex; gap: 7px; overflow-x: auto; padding: 2px 0 14px; scrollbar-width: none; }
+.filter-chips::-webkit-scrollbar { display: none; }
+.chip { flex-shrink: 0; padding: 9px 13px; border: 1px solid #e9e9ed; border-radius: 100px; background: #fff; color: #74747c; font-size: 10px; cursor: pointer; transition: color .2s, background .2s, border-color .2s; }
+.chip:hover { border-color: #c8c8cf; }
+.chip.active { color: #fff; background: #1b1b1e; border-color: #1b1b1e; }
+
+/* APP GRID */
+.apps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.app-card { min-width: 0; padding: 16px; border: 1px solid #ebebef; border-radius: 22px; background: #fff; transition: transform .28s, box-shadow .28s, border-color .28s; }
+.app-card:hover { transform: translateY(-3px); border-color: #d9d9df; box-shadow: 0 13px 30px #00000008; }
+.app-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.app-icon { width: 45px; height: 45px; flex-shrink: 0; display: grid; place-items: center; overflow: hidden; border: 1px solid #00000006; border-radius: 15px; background: #19191c; color: #fff; font-size: 18px; font-weight: 700; }
+.app-icon img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.icon-silver { background: linear-gradient(145deg,#f0f0f2,#d9d9df); color: #29292d; }
+.icon-blue { background: linear-gradient(145deg,#dfeaff,#b8c9e9); color: #294875; }
+.icon-green { background: linear-gradient(145deg,#d9f1e1,#b1ddc2); color: #285e40; }
+.icon-orange { background: linear-gradient(145deg,#ffead8,#f3c9a5); color: #89522c; }
+.icon-purple { background: linear-gradient(145deg,#eae2ff,#cfc1f1); color: #624c92; }
+.icon-pink { background: linear-gradient(145deg,#ffe5ed,#f2bdcd); color: #914a62; }
+.app-title-wrap { min-width: 0; flex: 1; }
+.app-title { margin: 0; overflow-wrap: anywhere; font-size: 12px; font-weight: 700; letter-spacing: -.3px; }
+.app-subtitle { margin: 5px 0 0; color: #9999a1; font-size: 9px; }
+.app-status { align-self: flex-start; flex-shrink: 0; padding: 5px 7px; border: 1px solid #ebebef; border-radius: 100px; color: #72727a; font-size: 8px; }
+.app-description { min-height: 35px; margin: 14px 0 12px; color: #777780; font-size: 10px; line-height: 1.8; }
+.app-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.app-tags span { padding: 6px 8px; border-radius: 100px; background: #f5f5f7; color: #707078; font-size: 8px; }
+.app-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; padding: 12px 0; border-top: 1px solid #f0f0f2; border-bottom: 1px solid #f0f0f2; }
+.info-label { margin-bottom: 5px; color: #a0a0a7; font-size: 8px; }
+.info-value { overflow-wrap: anywhere; font-size: 10px; font-weight: 600; }
+.app-footer { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-top: 12px; }
+.updated { min-width: 0; color: #96969e; font-size: 9px; line-height: 1.6; }
+.download-btn { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; gap: 6px; padding: 9px 12px; border: 1px solid #19191c; border-radius: 12px; background: #19191c; color: #fff; font-size: 9px; font-weight: 600; transition: background .2s, transform .2s; }
+.download-btn:hover { background: #404045; transform: translateY(-1px); }
+.download-btn.disabled { border-color: #e7e7eb; background: #f4f4f6; color: #8a8a92; cursor: not-allowed; }
+.featured-badge { display: inline-block; margin-bottom: 9px; padding: 5px 8px; border-radius: 100px; background: #f0f0f2; color: #525259; font-size: 8px; font-weight: 700; letter-spacing: .3px; }
+.empty-state { grid-column: 1 / -1; padding: 50px 15px; text-align: center; color: #888891; font-size: 12px; }
+.empty-state strong { display: block; margin-bottom: 8px; color: #34343a; font-size: 14px; }
+
+/* CHANGELOG */
+.changelog-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.change-card { padding: 20px; border: 1px solid var(--line); border-radius: 22px; background: #fff; transition: box-shadow .25s, transform .25s; }
+.change-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.change-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.change-app { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.change-mini-icon { width: 37px; height: 37px; display: grid; place-items: center; flex-shrink: 0; border-radius: 13px; background: #f0f0f2; color: #252529; font-size: 14px; font-weight: 700; }
+.change-app h3 { margin: 0; font-size: 12px; }
+.change-app p { margin: 5px 0 0; color: #96969e; font-size: 9px; }
+.version-pill { flex-shrink: 0; padding: 6px 9px; border-radius: 100px; background: #f4f4f6; color: #55555c; font-size: 9px; font-weight: 600; }
+.change-list { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+.change-list li { display: flex; gap: 9px; align-items: flex-start; color: #6f6f78; font-size: 10px; line-height: 1.7; }
+.change-list li::before { content: "✓"; display: grid; place-items: center; width: 17px; height: 17px; flex-shrink: 0; border-radius: 50%; background: #f0f0f2; color: #45454c; font-size: 9px; }
+.change-date { margin-top: 15px; padding-top: 12px; border-top: 1px solid #f0f0f2; color: #9a9aa1; font-size: 9px; }
+
+/* HOW TO */
+.guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.guide-card { padding: 20px; border: 1px solid var(--line); border-radius: 22px; background: #fff; }
+.guide-number { width: 33px; height: 33px; display: grid; place-items: center; border-radius: 12px; background: #f0f0f2; font-size: 11px; font-weight: 700; }
+.guide-card h3 { margin: 15px 0 8px; font-size: 12px; }
+.guide-card p { margin: 0; color: #808089; font-size: 10px; line-height: 1.9; }
+
+/* FOOTER */
+.footer { padding: 25px 0; border-top: 1px solid var(--line); }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+.footer-brand { font-size: 12px; font-weight: 700; }
+.footer-note { margin-top: 5px; color: #9999a1; font-size: 9px; }
+.footer-right { color: #9999a1; font-size: 9px; text-align: right; }
+
+/* REVEAL */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .65s ease, transform .65s cubic-bezier(.2,.7,.2,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.delay-1 { transition-delay: .08s; }
+.delay-2 { transition-delay: .15s; }
+[hidden] { display: none !important; }
+
+/* RESPONSIVE */
+@media (min-width: 900px) { .hero { padding-top: 100px; } }
+@media (max-width: 850px) {
+  .apps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .featured { grid-template-columns: 1fr .65fr; padding: 24px; }
+  .featured-app-icon { width: 95px; height: 95px; border-radius: 27px; }
+}
+@media (max-width: 600px) {
+  .container { width: calc(100% - 32px); }
+  .nav { min-height: 62px; }
+  .nav-links { gap: 12px; }
+  .nav-links .nav-secondary { display: none; }
+  .brand { font-size: 13px; }
+  .brand-symbol { width: 33px; height: 33px; }
+  .hero { padding-top: 66px; }
+  .hero h1 { font-size: clamp(48px, 12vw, 70px); }
+  .hero-description { font-size: 12px; }
+  .hero-bottom { margin-top: 46px; }
+  .stats { gap: 8px; padding-bottom: 48px; }
+  .stat-card { padding: 13px; border-radius: 17px; }
+  .stat-top { font-size: 9px; }
+  .stat-icon { width: 27px; height: 27px; border-radius: 9px; }
+  .stat-value { margin-top: 13px; font-size: 26px; }
+  .stat-note { font-size: 8px; }
+  .section { padding: 34px 0 48px; }
+  .section-heading { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+  .section-description { font-size: 10px; }
+  .featured { grid-template-columns: 1fr; gap: 0; padding: 21px; border-radius: 24px; }
+  .featured h3 { font-size: 31px; }
+  .featured-visual { min-height: 145px; }
+  .featured-glow { width: 150px; height: 150px; }
+  .featured-app-icon { width: 88px; height: 88px; border-radius: 25px; font-size: 37px; }
+  .library-panel { padding: 13px; border-radius: 23px; }
+  .library-toolbar { gap: 7px; }
+  .search-input, .filter-select { height: 42px; border-radius: 13px; }
+  .search-input { padding-left: 35px; font-size: 10px; }
+  .search-icon { left: 12px; }
+  .filter-select { width: 112px; padding: 0 7px; font-size: 9px; }
+  .apps-grid { gap: 9px; }
+  .app-card { padding: 11px; border-radius: 19px; }
+  .app-top { gap: 8px; }
+  .app-icon { width: 36px; height: 36px; border-radius: 12px; font-size: 14px; }
+  .app-title { font-size: 10px; }
+  .app-subtitle { font-size: 8px; }
+  .app-status { display: none; }
+  .app-description { min-height: 0; margin: 11px 0; font-size: 9px; }
+  .app-tags { gap: 4px; }
+  .app-tags span { padding: 5px 7px; font-size: 8px; }
+  .app-info { gap: 7px; margin-top: 11px; padding: 10px 0; }
+  .info-label { font-size: 7px; }
+  .info-value { font-size: 9px; }
+  .app-footer { align-items: stretch; flex-direction: column; gap: 9px; margin-top: 10px; }
+  .updated { font-size: 8px; }
+  .download-btn { width: 100%; padding: 9px 5px; border-radius: 11px; font-size: 9px; }
+  .changelog-list { grid-template-columns: 1fr; gap: 9px; }
+  .change-card { padding: 16px; border-radius: 19px; }
+  .guide { grid-template-columns: 1fr; gap: 9px; }
+  .guide-card { padding: 17px; border-radius: 19px; }
+  .guide-card h3 { margin-top: 11px; }
+  .footer-inner { align-items: flex-start; }
+  .footer-right { max-width: 135px; line-height: 1.7; }
+}
+@media (max-width: 350px) {
+  .container { width: calc(100% - 24px); }
+  .apps-grid { gap: 7px; }
+  .app-card { padding: 9px; border-radius: 16px; }
+  .app-icon { width: 32px; height: 32px; }
+  .app-title { font-size: 9px; }
+  .stat-card { padding: 10px; }
+  .stat-value { font-size: 23px; }
+  .filter-select { width: 100px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition-duration: .01ms !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<header class="header">
+  <nav class="nav container">
+    <a class="brand" href="#home" aria-label="IPA Studio trang chủ">
+      <span class="brand-symbol">⌘</span>
+      <span>IPA Studio<span class="brand-dot">.</span></span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-secondary" href="#featured">Nổi bật</a>
+      <a class="nav-secondary" href="#updates">Cập nhật</a>
+      <a class="nav-button" href="#library">Thư viện <span>↗</span></a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+<!-- HERO -->
+<section class="hero container" id="home">
+  <div class="reveal">
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      BỘ SƯU TẬP ỨNG DỤNG IOS
+    </div>
+    <h1>Ứng dụng, theo<br><span>cách của bạn.</span></h1>
+    <p class="hero-description">
+      Một không gian dành cho ứng dụng iOS.
+      Khám phá bộ sưu tập IPA, xem thông tin phiên bản
+      và tìm ứng dụng phù hợp trong giao diện tối giản.
+    </p>
+    <div class="hero-actions">
+      <a class="button button-dark" href="#library">
+        Khám phá thư viện <span>↗</span>
+      </a>
+      <a class="button button-light" href="#featured">
+        Ứng dụng nổi bật ↓
+      </a>
+    </div>
+  </div>
+  <div class="hero-bottom reveal delay-1">
+    <span>BỘ SƯU TẬP ỨNG DỤNG IOS CHỌN LỌC</span>
+    <span>CUỘN XUỐNG ĐỂ KHÁM PHÁ ↓</span>
+  </div>
+</section>
+
+<!-- LIVE STATISTICS -->
+<section class="container stats" aria-label="Thống kê thư viện">
+  <article class="stat-card reveal">
+    <div class="stat-top">
+      <span>Tổng ứng dụng</span>
+      <span class="stat-icon">▦</span>
+    </div>
+    <div class="stat-value" id="stat-total">00</div>
+    <div class="stat-note">Trong thư viện IPA</div>
+  </article>
+  <article class="stat-card reveal delay-1">
+    <div class="stat-top">
+      <span>Danh mục</span>
+      <span class="stat-icon">⌘</span>
+    </div>
+    <div class="stat-value" id="stat-categories">00</div>
+    <div class="stat-note">Nhóm ứng dụng</div>
+  </article>
+  <article class="stat-card reveal delay-2">
+    <div class="stat-top">
+      <span>Nổi bật</span>
+      <span class="stat-icon">✧</span>
+    </div>
+    <div class="stat-value" id="stat-featured">00</div>
+    <div class="stat-note">Ứng dụng được đề xuất</div>
+  </article>
+</section>
+
+<!-- FEATURED APP -->
+<section class="container section" id="featured">
+  <div class="section-heading reveal">
+    <div>
+      <div class="eyebrow">01 / BIÊN TẬP CHỌN</div>
+      <h2>Được đề xuất.</h2>
+    </div>
+    <p class="section-description">
+      Khám phá ứng dụng nổi bật trong thư viện.
+      Bạn có thể thay đổi lựa chọn trong dữ liệu bên dưới.
+    </p>
+  </div>
+  <div class="featured reveal">
+    <div class="featured-copy">
+      <div class="featured-label">
+        <span>✦</span> ỨNG DỤNG NỔI BẬT
+      </div>
+      <h3 id="featured-name">Ứng dụng Một</h3>
+      <p id="featured-description">
+        Ứng dụng nổi bật trong bộ sưu tập IPA.
+        Cập nhật mô tả tại phần dữ liệu ứng dụng.
+      </p>
+      <div class="featured-meta">
+        <span id="featured-version">Phiên bản 1.0.0</span>
+        <span id="featured-size">Dung lượng 25 MB</span>
+        <span id="featured-category">Công cụ</span>
+      </div>
+      <div class="hero-actions">
+        <a class="button button-dark" id="featured-link" href="#library">
+          Xem ứng dụng <span>↗</span>
+        </a>
+      </div>
+    </div>
+    <div class="featured-visual" aria-hidden="true">
+      <div class="featured-glow"></div>
+      <div class="featured-app-icon" id="featured-icon">A</div>
+    </div>
+  </div>
+</section>
+
+<!-- APP LIBRARY -->
+<section class="section library-section" id="library">
+  <div class="container">
+    <div class="section-heading reveal">
+      <div>
+        <div class="eyebrow">02 / TẤT CẢ ỨNG DỤNG</div>
+        <h2>Thư viện IPA.</h2>
+      </div>
+      <p class="section-description">
+        Tìm kiếm, lọc danh mục và xem thông tin
+        từng ứng dụng trước khi tải xuống.
+      </p>
+    </div>
+    <div class="library-panel reveal">
+      <div class="library-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input class="search-input" id="search" type="search" placeholder="Tìm tên ứng dụng..." autocomplete="off" aria-label="Tìm kiếm ứng dụng">
+        </div>
+        <select class="filter-select" id="sort" aria-label="Sắp xếp ứng dụng">
+          <option value="default">Mặc định</option>
+          <option value="name">Tên A–Z</option>
+          <option value="newest">Mới cập nhật</option>
+        </select>
+      </div>
+      <div class="library-subbar">
+        <span>ỨNG DỤNG</span>
+        <span id="results-count">00 ứng dụng</span>
+      </div>
+      <div class="filter-chips" id="category-filters" aria-label="Lọc danh mục">
+        <button class="chip active" data-category="all" type="button">Tất cả</button>
+        <button class="chip" data-category="utility" type="button">Công cụ</button>
+        <button class="chip" data-category="social" type="button">Mạng xã hội</button>
+        <button class="chip" data-category="entertainment" type="button">Giải trí</button>
+        <button class="chip" data-category="other" type="button">Khác</button>
+      </div>
+      <div class="apps-grid" id="apps-grid" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHANGELOG -->
+<section class="container section" id="updates">
+  <div class="section-heading reveal">
+    <div>
+      <div class="eyebrow">03 / GHI CHÚ PHÁT HÀNH</div>
+      <h2>Lịch sử cập nhật.</h2>
+    </div>
+    <p class="section-description">
+      Theo dõi phiên bản và ghi chú thay đổi
+      của các ứng dụng trong thư viện.
+    </p>
+  </div>
+  <div class="changelog-list" id="changelog-list"></div>
+</section>
+
+<!-- INSTALL GUIDE -->
+<section class="container section" id="guide">
+  <div class="section-heading reveal">
+    <div>
+      <div class="eyebrow">04 / HƯỚNG DẪN NHANH</div>
+      <h2>Bắt đầu từ đây.</h2>
+    </div>
+    <p class="section-description">
+      Một vài lưu ý cơ bản khi sử dụng
+      thư viện chia sẻ file IPA.
+    </p>
+  </div>
+  <div class="guide">
+    <article class="guide-card reveal">
+      <div class="guide-number">01</div>
+      <h3>Chọn ứng dụng</h3>
+      <p>Tìm kiếm theo tên hoặc lọc danh mục để tìm đúng ứng dụng bạn cần.</p>
+    </article>
+    <article class="guide-card reveal delay-1">
+      <div class="guide-number">02</div>
+      <h3>Kiểm tra thông tin</h3>
+      <p>Xem phiên bản, dung lượng và ngày cập nhật trước khi tải file.</p>
+    </article>
+    <article class="guide-card reveal delay-2">
+      <div class="guide-number">03</div>
+      <h3>Tải file IPA</h3>
+      <p>Nhấn nút tải khi có đường dẫn hợp lệ. Khả năng cài đặt phụ thuộc chữ ký và thiết bị.</p>
+    </article>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>
+      <div class="footer-brand">IPA Studio<span class="brand-dot">.</span></div>
+      <div class="footer-note">Ngôi nhà tối giản cho ứng dụng iOS.</div>
+    </div>
+    <div class="footer-right">
+      <div>THƯ VIỆN ỨNG DỤNG IPA</div>
+      <div style="margin-top:5px">© <span id="year"></span> · Bảo lưu mọi quyền.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   DỮ LIỆU ỨNG DỤNG — CHỈNH SỬA TẠI ĐÂY
+   ============================================================
+   Mỗi app là một object trong mảng `apps`.
+   Các trường bắt buộc:
+     id           : chuỗi duy nhất, không trùng
+     name         : tên ứng dụng
+     description  : mô tả ngắn
+     category     : utility | social | entertainment | other
+     version      : phiên bản (vd "1.0.0")
+     size         : dung lượng (vd "25 MB")
+     updated      : ngày YYYY-MM-DD
+     downloadUrl  : link tải file IPA thực tế (https://...)
+     iconText     : 1 chữ cái hiển thị nếu không có iconUrl
+     iconClass    : icon-silver|blue|green|orange|purple|pink
+     iconUrl      : (tùy chọn) URL ảnh icon
+     featured     : true để đánh dấu nổi bật
+     changes      : mảng chuỗi ghi chú thay đổi
+   ============================================================ */
+
+const apps = [
+  /* ---------- 6 APP GỐC ---------- */
+  {
+    id: "app-one",
+    name: "Ứng dụng Một",
+    subtitle: "Ứng dụng iOS",
+    description: "Ứng dụng nổi bật trong bộ sưu tập. Thay mô tả này bằng thông tin thật.",
+    category: "utility",
+    version: "1.0.0",
+    size: "25 MB",
+    updated: "2026-10-20",
+    iconText: "A",
+    iconClass: "",
+    iconUrl: "",
+    featured: true,
+    downloadUrl: "",
+    changes: ["Phát hành phiên bản đầu tiên.", "Bổ sung các tính năng cơ bản."]
+  },
+  {
+    id: "app-two",
+    name: "Ứng dụng Hai",
+    subtitle: "Ứng dụng iOS",
+    description: "Mô tả ngắn về ứng dụng và các tính năng đáng chú ý.",
+    category: "social",
+    version: "2.1.0",
+    size: "48 MB",
+    updated: "2026-10-18",
+    iconText: "B",
+    iconClass: "icon-blue",
+    iconUrl: "",
+    featured: false,
+    downloadUrl: "",
+    changes: ["Cải thiện hiệu năng ứng dụng.", "Sửa một số lỗi ở phiên bản trước."]
+  },
+  {
+    id: "app-three",
+    name: "Ứng dụng Ba",
+    subtitle: "Ứng dụng iOS",
+    description: "Ứng dụng giải trí với giao diện đơn giản, dễ sử dụng.",
+    category: "entertainment",
+    version: "1.2.0",
+    size: "72 MB",
+    updated: "2026-10-15",
+    iconText: "C",
+    iconClass: "icon-purple",
+    iconUrl: "",
+    featured: false,
+    downloadUrl: "",
+    changes: ["Cập nhật giao diện.", "Tối ưu trải nghiệm sử dụng."]
+  },
+  {
+    id: "app-four",
+    name: "Ứng dụng Bốn",
+    subtitle: "Ứng dụng iOS",
+    description: "Công cụ tiện ích cho nhu cầu sử dụng hằng ngày.",
+    category: "utility",
+    version: "1.0.1",
+    size: "19 MB",
+    updated: "2026-10-12",
+    iconText: "D",
+    iconClass: "icon-green",
+    iconUrl: "",
+    featured: false,
+    downloadUrl: "",
+    changes: ["Sửa lỗi nhỏ.", "Cải thiện độ ổn định."]
+  },
+  {
+    id: "app-five",
+    name: "Ứng dụng Năm",
+    subtitle: "Ứng dụng iOS",
+    description: "Ứng dụng dành cho người dùng iOS. Tùy chỉnh phần mô tả tại đây.",
+    category: "other",
+    version: "1.3.0",
+    size: "35 MB",
+    updated: "2026-10-08",
+    iconText: "E",
+    iconClass: "icon-orange",
+    iconUrl: "",
+    featured: false,
+    downloadUrl: "",
+    changes: ["Bổ sung tính năng mới.", "Tối ưu kích thước ứng dụng."]
+  },
+  {
+    id: "app-six",
+    name: "Ứng dụng Sáu",
+    subtitle: "Ứng dụng iOS",
+    description: "Bộ công cụ được thiết kế cho trải nghiệm iOS gọn gàng.",
+    category: "social",
+    version: "1.0.0",
+    size: "41 MB",
+    updated: "2026-10-05",
+    iconText: "F",
+    iconClass: "icon-pink",
+    iconUrl: "",
+    featured: false,
+    downloadUrl: "",
+    changes: ["Phát hành phiên bản đầu tiên."]
+  },
+
+  /* ---------- 6 APP IPA MỚI THÊM ---------- */
+  {
+    id: "youtube-plus",
+    name: "YouTube Plus",
+    subtitle: "Ứng dụng iOS (Tweaked)",
+    description: "Bản YouTube mở khóa tính năng nền, không quảng cáo, tải video. Yêu cầu chứng chỉ tin cậy trên thiết bị.",
+    category: "entertainment",
+    version: "19.30.3",
+    size: "128 MB",
+    updated: "2026-10-21",
+    iconText: "Y",
+    iconClass: "icon-pink",
+    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg",
+    featured: true,
+    downloadUrl: "https://example.com/youtube-plus.ipa",
+    changes: [
+      "Chặn quảng cáo hoàn toàn.",
+      "Phát nền và Picture-in-Picture.",
+      "Tải video chất lượng tới 4K."
+    ]
+  },
+  {
+    id: "spotify-plus",
+    name: "Spotify Plus",
+    subtitle: "Ứng dụng iOS (Tweaked)",
+    description: "Bản Spotify mở khóa bỏ qua bài, chọn bài tùy ý, chất lượng cao. Không cần Premium.",
+    category: "entertainment",
+    version: "8.9.96",
+    size: "210 MB",
+    updated: "2026-10-19",
+    iconText: "S",
+    iconClass: "icon-green",
+    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg",
+    featured: false,
+    downloadUrl: "https://example.com/spotify-plus.ipa",
+    changes: [
+      "Mở khóa Spotify Premium.",
+      "Bỏ qua bài không giới hạn.",
+      "Chất lượng âm thanh Very High."
+    ]
+  },
+  {
+    id: "instagram-rocket",
+    name: "Instagram Rocket",
+    subtitle: "Ứng dụng iOS (Tweaked)",
+    description: "Bản Instagram nâng cao: tải ảnh/video/reels, ẩn trạng thái đã xem, xem ảnh đại diện full size.",
+    category: "social",
+    version: "334.0.0",
+    size: "156 MB",
+    updated: "2026-10-20",
+    iconText: "I",
+    iconClass: "icon-purple",
+    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+    featured: false,
+    downloadUrl: "https://example.com/instagram-rocket.ipa",
+    changes: [
+      "Tải xuống ảnh, video, reels.",
+      "Ẩn trạng thái đã xem tin nhắn.",
+      "Xem story ẩn danh."
+    ]
+  },
+  {
+    id: "tiktok-plus",
+    name: "TikTok Plus",
+    subtitle: "Ứng dụng iOS (Tweaked)",
+    description: "TikTok không quảng cáo, tải video không watermark, mở khóa vùng địa lý.",
+    category: "entertainment",
+    version: "32.5.0",
+    size: "245 MB",
+    updated: "2026-10-17",
+    iconText: "T",
+    iconClass: "icon-silver",
+    iconUrl: "https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg",
+    featured: false,
+    downloadUrl: "https://example.com/tiktok-plus.ipa",
+    changes: [
+      "Loại bỏ mọi quảng cáo.",
+      "Tải video không logo.",
+      "Mở khóa nội dung theo vùng."
+    ]
+  },
+  {
+    id: "procreate-pocket",
+    name: "Procreate Pocket",
+    subtitle: "Ứng dụng iOS (Pro)",
+    description: "Ứng dụng vẽ chuyên nghiệp trên iPhone với bút cảm ứng, hỗ trợ Apple Pencil, xuất file PSD.",
+    category: "utility",
+    version: "4.2.1",
+    size: "310 MB",
+    updated: "2026-10-14",
+    iconText: "P",
+    iconClass: "icon-orange",
+    iconUrl: "",
+    featured: false,
+    downloadUrl: "https://example.com/procreate-pocket.ipa",
+    changes: [
+      "Hỗ trợ Apple Pencil thế hệ mới.",
+      "Bổ sung brush pack mới.",
+      "Xuất PSD tương thích Photoshop."
+    ]
+  },
+  {
+    id: "shadowrocket",
+    name: "Shadowrocket",
+    subtitle: "Ứng dụng iOS (VPN)",
+    description: "Công cụ proxy/VPN mạnh mẽ cho iOS, hỗ trợ nhiều giao thức Shadowsocks, VMess, Trojan, WireGuard.",
+    category: "utility",
+    version: "2.2.65",
+    size: "18 MB",
+    updated: "2026-10-22",
+    iconText: "R",
+    iconClass: "icon-blue",
+    iconUrl: "",
+    featured: false,
+    downloadUrl: "https://example.com/shadowrocket.ipa",
+    changes: [
+      "Hỗ trợ giao thức Hysteria2.",
+      "Tối ưu tiêu hao pin.",
+      "Sửa lỗi kết nối WireGuard."
+    ]
+  }
+];
+
+/* HELPERS */
+const $ = (selector) => document.querySelector(selector);
+const categoryNames = {
+  utility: "Công cụ",
+  social: "Mạng xã hội",
+  entertainment: "Giải trí",
+  other: "Khác"
+};
+const categoryClasses = ["icon-silver","icon-blue","icon-green","icon-orange","icon-purple","icon-pink"];
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+function validDate(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value || "") && !Number.isNaN(Date.parse(value));
+}
+function formatDate(value) {
+  if (!validDate(value)) return "Chưa cập nhật";
+  const [year, month, day] = value.split("-");
+  return `${day}/${month}/${year}`;
+}
+function getIconMarkup(app) {
+  if (app.iconUrl) {
+    return `<img src="${escapeHTML(app.iconUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+  }
+  return escapeHTML(app.iconText || app.name.charAt(0));
+}
+function getSortedApps(list, mode) {
+  const sorted = [...list];
+  if (mode === "name") sorted.sort((a, b) => a.name.localeCompare(b.name, "vi"));
+  else if (mode === "newest") sorted.sort((a, b) => {
+    const da = validDate(a.updated) ? a.updated : "";
+    const db = validDate(b.updated) ? b.updated : "";
+    return db.localeCompare(da);
+  });
+  return sorted;
+}
+
+/* APP CARD */
+function appCard(app, index) {
+  const category = categoryNames[app.category] || "Khác";
+  const iconClass = app.iconClass || categoryClasses[index % categoryClasses.length];
+  const downloadAvailable = /^https?:\/\//i.test(app.downloadUrl || "");
+  return `
+    <article class="app-card reveal visible" data-app-id="${escapeHTML(app.id)}">
+      ${app.featured ? '<span class="featured-badge">✦ NỔI BẬT</span>' : ""}
+      <div class="app-top">
+        <div class="app-icon ${escapeHTML(iconClass)}">${getIconMarkup(app)}</div>
+        <div class="app-title-wrap">
+          <h3 class="app-title">${escapeHTML(app.name)}</h3>
+          <p class="app-subtitle">${escapeHTML(app.subtitle || "Ứng dụng iOS")}</p>
+        </div>
+        <span class="app-status">IPA</span>
+      </div>
+      <p class="app-description">${escapeHTML(app.description)}</p>
+      <div class="app-tags">
+        <span>${escapeHTML(category)}</span>
+        <span>iOS</span>
+      </div>
+      <div class="app-info">
+        <div>
+          <div class="info-label">PHIÊN BẢN</div>
+          <div class="info-value">${escapeHTML(app.version || "N/A")}</div>
+        </div>
+        <div>
+          <div class="info-label">DUNG LƯỢNG</div>
+          <div class="info-value">${escapeHTML(app.size || "Chưa rõ")}</div>
+        </div>
+      </div>
+      <div class="app-footer">
+        <div class="updated">
+          <div>Cập nhật</div>
+          <strong>${escapeHTML(formatDate(app.updated))}</strong>
+        </div>
+        ${downloadAvailable
+          ? `<a class="download-btn" href="${escapeHTML(app.downloadUrl)}" target="_blank" rel="noopener noreferrer">Tải IPA <span>↓</span></a>`
+          : `<button class="download-btn disabled" type="button" disabled title="Chưa có đường dẫn IPA">Chưa có link</button>`}
+      </div>
+    </article>
+  `;
+}
+
+/* RENDER LIBRARY */
+let activeCategory = "all";
+function renderApps() {
+  const query = $("#search").value.trim().toLocaleLowerCase("vi");
+  const sortMode = $("#sort").value;
+  let filtered = apps.filter((app) => {
+    const text = [app.name, app.subtitle, app.description, categoryNames[app.category], app.version]
+      .join(" ").toLocaleLowerCase("vi");
+    const matchesQuery = text.includes(query);
+    const matchesCategory = activeCategory === "all" || app.category === activeCategory;
+    return matchesQuery && matchesCategory;
+  });
+  filtered = getSortedApps(filtered, sortMode);
+  $("#apps-grid").innerHTML = filtered.length
+    ? filtered.map((app) => appCard(app, apps.indexOf(app))).join("")
+    : `<div class="empty-state"><strong>Không tìm thấy ứng dụng</strong>Thử từ khóa khác hoặc chọn một danh mục khác nhé.</div>`;
+  $("#results-count").textContent = `${filtered.length} ứng dụng`;
+}
+
+/* CATEGORY CHIPS */
+$("#category-filters").addEventListener("click", (event) => {
+  const chip = event.target.closest("[data-category]");
+  if (!chip) return;
+  activeCategory = chip.dataset.category;
+  $("#category-filters").querySelectorAll(".chip").forEach((button) => {
+    const active = button === chip;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  renderApps();
+});
+$("#search").addEventListener("input", renderApps);
+$("#sort").addEventListener("change", renderApps);
+
+/* LIVE STATISTICS */
+function renderStats() {
+  const categories = new Set(apps.map((app) => app.category));
+  $("#stat-total").textContent = String(apps.length).padStart(2, "0");
+  $("#stat-categories").textContent = String(categories.size).padStart(2, "0");
+  $("#stat-featured").textContent = String(apps.filter((app) => app.featured).length).padStart(2, "0");
+}
+
+/* FEATURED APP */
+function renderFeatured() {
+  const featured = apps.find((app) => app.featured) || apps[0];
+  if (!featured) return;
+  $("#featured-name").textContent = featured.name;
+  $("#featured-description").textContent = featured.description;
+  $("#featured-version").textContent = `Phiên bản ${featured.version || "N/A"}`;
+  $("#featured-size").textContent = `Dung lượng ${featured.size || "Chưa rõ"}`;
+  $("#featured-category").textContent = categoryNames[featured.category] || "Khác";
+  const icon = $("#featured-icon");
+  if (featured.iconUrl) {
+    icon.innerHTML = `<img src="${escapeHTML(featured.iconUrl)}" alt="${escapeHTML(featured.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+  } else {
+    icon.textContent = featured.iconText || featured.name.charAt(0);
+  }
+  $("#featured-link").href = "#library";
+  $("#featured-link").addEventListener("click", () => {
+    $("#search").value = featured.name;
+    activeCategory = "all";
+    $("#category-filters").querySelectorAll(".chip").forEach((chip) => {
+      const active = chip.dataset.category === "all";
+      chip.classList.toggle("active", active);
+      chip.setAttribute("aria-pressed", String(active));
+    });
+    renderApps();
+  }, { once: true });
+}
+
+/* CHANGELOG */
+function renderChangelog() {
+  const sorted = [...apps]
+    .filter((app) => app.changes && app.changes.length)
+    .sort((a, b) => {
+      const da = validDate(a.updated) ? a.updated : "";
+      const db = validDate(b.updated) ? b.updated : "";
+      return db.localeCompare(da);
+    })
+    .slice(0, 4);
+  $("#changelog-list").innerHTML = sorted.map((app, index) => `
+    <article class="change-card reveal ${index % 2 ? "delay-1" : ""}">
+      <div class="change-head">
+        <div class="change-app">
+          <div class="change-mini-icon">${escapeHTML(app.iconText || app.name.charAt(0))}</div>
+          <div>
+            <h3>${escapeHTML(app.name)}</h3>
+            <p>${escapeHTML(formatDate(app.updated))}</p>
+          </div>
+        </div>
+        <span class="version-pill">v${escapeHTML(app.version || "N/A")}</span>
+      </div>
+      <ul class="change-list">
+        ${app.changes.map((change) => `<li>${escapeHTML(change)}</li>`).join("")}
+      </ul>
+      <div class="change-date">GHI CHÚ PHÁT HÀNH · ${escapeHTML(app.id.toUpperCase())}</div>
+    </article>
+  `).join("");
+}
+
+/* SCROLL REVEAL */
+function initReveal() {
+  const elements = document.querySelectorAll(".reveal:not(.visible)");
+  if (!("IntersectionObserver" in window)) {
+    elements.forEach((el) => el.classList.add("visible"));
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: "0px 0px -20px 0px" });
+  elements.forEach((el) => observer.observe(el));
+}
+
+/* INITIALIZE */
+$("#year").textContent = new Date().getFullYear();
+renderStats();
+renderFeatured();
+renderApps();
+renderChangelog();
+initReveal();
+</script>
+</body>
+</html>
